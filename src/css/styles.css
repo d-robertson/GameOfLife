@@ -1,0 +1,20 @@
+.btn {
+  margin-left: 20px;
+  margin-top: 20px;
+}
+
+.primary {
+  border: 1px solid blue;
+  width: 610px;
+}
+
+.primary div {
+  border: 1px solid #eee;
+  width: 10px;
+  height: 10px;
+  float: left;
+}
+
+.y {
+  background-color: black;
+}
