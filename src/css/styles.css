@@ -18,6 +18,10 @@ body .row {
   text-align: center;
 }
 
+.select2 {
+  min-width: 300px;
+}
+
 .btn {
   /*margin-left: 20px;*/
   margin-top: 20px;

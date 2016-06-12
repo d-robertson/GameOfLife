@@ -129,6 +129,9 @@ function setBrowserSize(live, buffer) {
 // On Doc Ready
 $(document).ready(function() {
   var playing = null;
+  // $(".select2").select2({
+  //   // minimumResultsForSearch: Infinity
+  // });
 
   // Board initialization. Two boards: live & buffer. Buffer is the next generation
   live = new Board();

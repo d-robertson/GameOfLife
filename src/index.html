@@ -19,6 +19,7 @@
   </div>
   <div class="row">
     <div class="menu">
+      <button class="btn btn-default disabled" id="first">First Generation</button>
       <button class="btn btn-default" id="next">Next Generation</button>
       <button class="btn btn-primary" id="play">Play</button>
 
@@ -36,8 +37,19 @@
               <h4 class="modal-title" id="myModalLabel">Pre-Made Examples</h4>
             </div>
             <div class="modal-body">
-              <textarea id="load-data" class="form-control" rows="12"></textarea>
-              <button id="loader" class="btn btn-default" data-dismiss="modal">Okay</button>
+              
+              <div class="row">
+                <select class="select2">
+                </select>
+                <button class="btn btn-default" id="select2" data-dismiss="modal">Load</button>
+              </div>
+              
+              <div class="row">Paste <i>Plaintext</i> Official Format below</div>
+              <div class="row">
+                <textarea id="load-data" class="form-control" rows="6"></textarea>
+                <button id="saver" class="btn btn-danger" data-dismiss="modal">Save Online</button>
+                <button id="loader" class="btn btn-default" data-dismiss="modal">Load PlainText</button>
+              </div>
             </div>
             <div class="modal-footer">
               <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
@@ -54,6 +66,12 @@
   <div class="row">
     <div class="primary"></div> 
   </div>
+
+  <!-- Select Boxes -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+  <!-- Firebase -->
+  <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
   <script type="text/javascript" src="js/main.js"></script>
   <script type="text/javascript" src="js/loader.js"></script>
 </body>
