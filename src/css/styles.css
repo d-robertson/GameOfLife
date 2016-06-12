@@ -24,6 +24,9 @@ body .row {
   margin-bottom: 20px;
 }
 
+.btn.btn-primary {
+  margin-right: 20px;
+}
 
 .primary {
   /*border: 1px solid blue;*/
@@ -70,21 +73,28 @@ body .row {
 /* Extra Small Devices, Phones */ 
 @media only screen and (max-width : 480px) {
   body .row {
-    width: 410px;
+    width: 360px;
   }
   .primary {
-    width: 410px;
+    width: 360px;
   }
   .primary div {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   }
 }
 
 /* Custom, iPhone Retina */ 
 /*@media only screen and (max-width : 320px) {
+  body .row {
+    width: 360px;
+  }
   .primary {
-    width: 220px;
+    width: 360px;
+  }
+  .primary div {
+  width: 35px;
+  height: 35px;
   }
 }*/
 
