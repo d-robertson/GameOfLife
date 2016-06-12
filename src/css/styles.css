@@ -27,7 +27,7 @@ body .row {
 
 .primary {
   /*border: 1px solid blue;*/
-  width: 610px;
+  width: 605px;
   margin: 0 auto;
 }
 
@@ -46,7 +46,7 @@ body .row {
     width: 660px;
   }
   .primary {
-    width: 660px;
+    width: 650px;
   }
   .primary div {
   width: 20px;
