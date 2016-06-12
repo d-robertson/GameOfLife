@@ -86,7 +86,7 @@ Board.prototype.applyRules = function(liveBoard) {
 }
 
 function nextGeneration(live, buffer) {
-  console.log("played");
+  // console.log("played");
   buffer.initEmpty();
   buffer.applyRules(live);
   buffer.commit();
@@ -139,6 +139,10 @@ $(document).ready(function() {
   
   // Set screen size due to resize
   $(window).resize(function() {
+    if (playing) {
+      clearTimeout(playing);
+      playing = null;
+    }
     setBrowserSize(live, buffer);
   })
 
@@ -161,10 +165,12 @@ $(document).ready(function() {
   $('#play').click(function() {
     // If not playing, play. Else stop the playing
     if (playing === null) {
+      $('#play').text("Stop");
       playing = setInterval(function() {
         nextGeneration(live,buffer);
       }, 100);
     } else {
+      $('#play').text("Play");
       clearTimeout(playing);
       playing = null;
     }
