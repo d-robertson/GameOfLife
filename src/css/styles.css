@@ -1,20 +1,95 @@
-.btn {
-  margin-left: 20px;
-  margin-top: 20px;
+body {
+  background-image: url('../img/grey_@2X.png');
 }
+
+body .row {
+  /*border: 1px solid blue;*/
+  width: 610;
+  margin: 0 auto;
+}
+
+.header {
+  font-family: 'Niconne', cursive;
+  text-align: center;
+}
+
+.menu {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.btn {
+  /*margin-left: 20px;*/
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
 
 .primary {
   border: 1px solid blue;
   width: 610px;
+  margin: 0 auto;
 }
 
 .primary div {
-  border: 1px solid #eee;
+  background-color: white;
+  border: 1px solid #ccc;
   width: 10px;
   height: 10px;
   float: left;
 }
 
-.y {
+
+/* Small Devices, Tablets */
+@media only screen and (max-width : 768px) {
+  body .row {
+    width: 660px;
+  }
+  .primary {
+    width: 660px;
+  }
+  .primary div {
+  width: 20px;
+  height: 20px;
+  }
+}
+
+@media only screen and (max-width : 660px) {
+  body .row {
+    width: 460px;
+  }
+  .primary {
+    width: 460px;
+  }
+  .primary div {
+  width: 30px;
+  height: 30px;
+  }
+}
+
+/* Extra Small Devices, Phones */ 
+@media only screen and (max-width : 480px) {
+  body .row {
+    width: 410px;
+  }
+  .primary {
+    width: 410px;
+  }
+  .primary div {
+  width: 40px;
+  height: 40px;
+  }
+}
+
+/* Custom, iPhone Retina */ 
+/*@media only screen and (max-width : 320px) {
+  .primary {
+    width: 220px;
+  }
+}*/
+
+
+
+.primary div.y {
   background-color: black;
 }
