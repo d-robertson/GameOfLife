@@ -2,6 +2,7 @@ var gridSize = 60;
 var generation = 0;
 var live;
 var buffer;
+var first;
 
 function Board() {
   this.grid = [];
@@ -88,7 +89,6 @@ Board.prototype.applyRules = function(liveBoard) {
 }
 
 function nextGeneration(live, buffer) {
-  // console.log("played");
   buffer.initEmpty();
   buffer.applyRules(live);
   buffer.commit();
@@ -129,9 +129,6 @@ function setBrowserSize(live, buffer) {
 // On Doc Ready
 $(document).ready(function() {
   var playing = null;
-  // $(".select2").select2({
-  //   // minimumResultsForSearch: Infinity
-  // });
 
   // Board initialization. Two boards: live & buffer. Buffer is the next generation
   live = new Board();
@@ -158,16 +155,63 @@ $(document).ready(function() {
       live.grid[$(this).attr('id') % gridSize][Math.floor($(this).attr('id') / gridSize)] = false;
     } else {
       $(this).addClass('y'); // Add class and add to grid
-      console.log($(this).attr('id'));
       live.grid[$(this).attr('id') % gridSize][Math.floor($(this).attr('id') / gridSize)] = true;
     }  
   })
+
+  // Clear Button
+  $('#clear').click(function() {
+    generation = 0;
+    live.grid = [];
+    live.initEmpty();
+    live.commit();
+    document.title = generation + " generations";
+    $('#first').addClass('disabled');
+    if (playing !== null) {
+      $('#play').text("Play");
+      clearTimeout(playing);
+      playing = null;
+    }
+  })
+
+  // First Button
+  $('#first').click(function() {
+    if (!$('#first').hasClass('disabled')) {
+      live.grid = first.grid;
+      live.commit();
+      generation = 0;
+      document.title = generation + " generations";
+      $('#first').addClass('disabled');
+      // Stop playing
+      if (playing !== null) {
+        $('#play').text("Play");
+        clearTimeout(playing);
+        playing = null;
+      }
+    }
+
+  })
+
   // Next Button
   $('#next').click(function() {
-    nextGeneration(live, buffer);
+    if (generation === 0) {
+      first = new Board();
+      first.grid = live.grid;
+      $('#first').removeClass("disabled");
+    }
+    if (playing === null) {
+      nextGeneration(live, buffer);
+    }
   })
+
   // Play Button
   $('#play').click(function() {
+    if (generation === 0) {
+      first = new Board();
+      first.grid = live.grid;
+      $('#first').removeClass("disabled");
+    }
+
     // If not playing, play. Else stop the playing
     if (playing === null) {
       $('#play').text("Stop");
@@ -183,11 +227,3 @@ $(document).ready(function() {
 
 })
 
-
-
-
-// invert board
-// if (liveBoard.grid[x][y] === false) {
-//   this.grid[x][y] = true;
-//   continue;
-// }
