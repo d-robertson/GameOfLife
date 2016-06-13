@@ -3,6 +3,7 @@ var generation = 0;
 var live;
 var buffer;
 var first;
+var debugLoops = 0;
 
 function Board() {
   this.grid = [];
@@ -14,7 +15,7 @@ Board.prototype.initEmpty = function() {
   for (var y=0; y<this.size; y++) {
     this.grid.push([]);
     for (var x=0; x<this.size; x++) {
-      this.grid[y].push(false); // Using boolians because its only 1 bit of data
+      this.grid[y].push(null); // Using boolians because its only 1 bit of data
     }
   }
 }
@@ -41,6 +42,8 @@ Board.prototype.countNeighbors = function(x,y,liveBoard) {
   // Iterate through each cell and apply the 4 rules to it.
   var livingNeighbors = 0;
   for (var i=0; i<9; i++) {
+    if (livingNeighbors >= 4) {break;}
+    debugLoops += 1;
 
     // Scanning management - skip 4 and abort if array query is OOB
     if (i === 4) { continue; } // i === 4 is it's own self.
@@ -64,6 +67,9 @@ Board.prototype.countNeighbors = function(x,y,liveBoard) {
       livingNeighbors += 1;
     }
   }
+  // if (x == 57 && y == 2) {
+  //   console.log("while leaving: ", livingNeighbors);
+  // }
   return livingNeighbors;
 }
 
@@ -71,36 +77,131 @@ Board.prototype.applyRules = function(x, y, liveBoard, liveNeighbors) {
   // Rule 1 - Any live cell with fewer than two live neighbours dies
   if (liveBoard.grid[x][y] && liveNeighbors < 2) {
     this.grid[x][y] = false;
+    // console.log('rule 1');
   }
   // Rule 2 - Any live cell with more than three live neighbours dies
   if (liveBoard.grid[x][y] && liveNeighbors > 3) {
     this.grid[x][y] = false;
+    // console.log('rule 2');
   }
   // Rule 3 - Any live cell with two or three live neighbours lives, unchanged, to the next generation.
   if (liveNeighbors === 2 || liveNeighbors === 3 ) {
     this.grid[x][y] = liveBoard.grid[x][y]
+    // console.log('rule 3');
   }
   // Rule 4 - Any dead cell with exactly three live neighbours will come to life.
-  if (liveBoard.grid[x][y] === false && liveNeighbors === 3) {
+  if ((liveBoard.grid[x][y] === false || liveBoard.grid[x][y] === null) && liveNeighbors === 3) {
     this.grid[x][y] = true;
+    // console.log('rule 4');
+  }
+  // If nothing happens by now, set it away from null to avoid re-calculation
+  if (liveBoard.grid[x][y] === null) {
+    liveBoard.grid[x][y] = false;
   }
 }
 
 Board.prototype.calculate = function(liveBoard) {
-  var resumeX, resumeY = 0;
+  // var resumeX, resumeY = 0;
 
   for (var y=0; y<this.size; y++) { 
     for (var x=0; x<this.size; x++) {
       var liveNeighbors;
+      var prevCoordX;
+      var prevCoordY
 
       // Method for skipping as many cycles as possible
+      // If found a black square...
       if (liveBoard.grid[x][y]) {
-        resumeX = x;
-        resumeY = y;
+
+        for (var i=0; i<9; i++) {
+          // NEED TO SKIP DOUBLE CHECKS
+          if (i === 4) { continue; } // i === 4 is it's own self.
+          xCoord = (x-1) + (i % 3);
+          yCoord = (y-1) + Math.floor(i/3);
+          
+          // Needs refinement
+          // If it is simply one more square over, then skip this loop as it has
+          // already been calculated
+          // if ( prevCoordY === yCoord && prevCoordX === prevCoordX + 1 ) {
+          //   console.log("saved one", yCoord, lastCoord[1]);
+          //   lastCoord = [xCoord, yCoord];
+          //   continue;
+          // }
+
+          
+
+          // Instead of out of bounds errors, correct it by looping
+          // This code is duplicated inside countNeighbors. Condense?
+          if (xCoord < 0) { 
+            xCoord = this.size -1
+          } else if (xCoord > this.size -1) {
+            xCoord = 0;
+          }
+          if (yCoord < 0) { 
+            yCoord = this.size -1;
+          } else if (yCoord > this.size -1) {
+            yCoord = 0;
+          }
+
+          if (xCoord == 1 && yCoord == 1) {
+            console.log("11: ", liveBoard.grid[xCoord][yCoord])
+          }
+
+          
+
+          // Wierd bug where this.countNeighbors() must be inside this function.
+          // Assignment to a variable results in incorrect integer.
+          this.applyRules(xCoord, yCoord, liveBoard, this.countNeighbors(xCoord, yCoord, liveBoard) )
+          lastCoord = [xCoord, yCoord];
+        }
+
+
+
+        // Old code before shortening
+
+        // Check the 3 squares above the currently found black square
+        // for (var a=x-1; a<(x-1)+3; a++) {
+        //   liveNeighbors = this.countNeighbors(a,y-1,liveBoard);
+        //   this.applyRules(a, y-1, liveBoard, liveNeighbors)
+        //   liveNeighbors = 0;
+        //   console.log("checking ", a, y-1);
+        // }
+
+        // // If the previous square (left one) is null, calculate it
+        // if (this.grid[x-1][y] === null) {
+        //   liveNeighbors = this.countNeighbors(x-1,y,liveBoard);
+        //   this.applyRules(x-1, y, liveBoard, liveNeighbors)
+        //   liveNeighbors = 0;
+        // }
+        
+        // // Calculate current cell
+        // liveNeighbors = this.countNeighbors(x,y,liveBoard);
+        // this.applyRules(x, y, liveBoard, liveNeighbors)
+        // liveNeighbors = 0;
+
+        // // Check the square to the right. Room for optimization?
+        // if (this.grid[x+1][y] === null) {
+        //   liveNeighbors = this.countNeighbors(x+1,y,liveBoard);
+        //   this.applyRules(x+1, y, liveBoard, liveNeighbors)
+        //   liveNeighbors = 0;
+        // }
+
+        // // Check the 3 squares beflow the currently found black square
+        // for (var a=x-1; a<(x-1)+3; a++) {
+        //   liveNeighbors = this.countNeighbors(a,y+1,liveBoard);
+        //   this.applyRules(a, y+1, liveBoard, liveNeighbors)
+        //   liveNeighbors = 0;
+        //   console.log("checking ", a, y+1);
+        // }
+
+
+
       }
 
-      liveNeighbors = this.countNeighbors(x,y,liveBoard);
-      this.applyRules(x, y, liveBoard, liveNeighbors)
+      // old old code where it checked every cell. 32,000 loops per gen
+
+      // liveNeighbors = this.countNeighbors(x,y,liveBoard);
+      // this.applyRules(x, y, liveBoard, liveNeighbors)
 
       
     }
@@ -113,6 +214,8 @@ function nextGeneration(live, buffer) {
   buffer.commit();
   live.grid = buffer.grid;
   generation += 1;
+  console.log("cycles per gen: ", debugLoops);
+  debugLoops = 0;
   document.title = generation + " generations";
 }
 
@@ -147,7 +250,7 @@ function setBrowserSize(live, buffer) {
 
 // On Doc Ready
 $(document).ready(function() {
-   var playing = null;
+  var playing = null;
 
   // Board initialization. Two boards: live & buffer. Buffer is the next generation
   live = new Board();
@@ -163,6 +266,7 @@ $(document).ready(function() {
     if (playing) {
       clearTimeout(playing);
       playing = null;
+      $('#play').text("Play");
     }
     setBrowserSize(live, buffer);
   })
@@ -171,7 +275,7 @@ $(document).ready(function() {
   $('.primary').on("click", "div", function(event) {
     if ($(this).hasClass('y')) {
       $(this).removeClass('y'); // Remove class and remove from grid
-      live.grid[$(this).attr('id') % gridSize][Math.floor($(this).attr('id') / gridSize)] = false;
+      live.grid[$(this).attr('id') % gridSize][Math.floor($(this).attr('id') / gridSize)] = null;
     } else {
       $(this).addClass('y'); // Add class and add to grid
       live.grid[$(this).attr('id') % gridSize][Math.floor($(this).attr('id') / gridSize)] = true;
