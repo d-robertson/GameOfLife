@@ -37,60 +37,79 @@ Board.prototype.commit = function() {
   $('.primary').html(html);
 }
 
+Board.prototype.countNeighbors = function(x,y,liveBoard) {
+  // Iterate through each cell and apply the 4 rules to it.
+  var livingNeighbors = 0;
+  for (var i=0; i<9; i++) {
 
-Board.prototype.applyRules = function(liveBoard) {
+    // Scanning management - skip 4 and abort if array query is OOB
+    if (i === 4) { continue; } // i === 4 is it's own self.
+    xCoord = (x-1) + (i % 3);
+    yCoord = (y-1) + Math.floor(i/3);
+
+    // Instead of out of bounds errors, correct it by looping
+    if (xCoord < 0) { 
+      xCoord = this.size -1
+    } else if (xCoord > this.size -1) {
+      xCoord = 0;
+    }
+    if (yCoord < 0) { 
+      yCoord = this.size -1;
+    } else if (yCoord > this.size -1) {
+      yCoord = 0;
+    }
+
+    // Count the living neighbors
+    if (liveBoard.grid[ xCoord ][ yCoord ]) {
+      livingNeighbors += 1;
+    }
+  }
+  return livingNeighbors;
+}
+
+Board.prototype.applyRules = function(x, y, liveBoard, liveNeighbors) {
+  // Rule 1 - Any live cell with fewer than two live neighbours dies
+  if (liveBoard.grid[x][y] && liveNeighbors < 2) {
+    this.grid[x][y] = false;
+  }
+  // Rule 2 - Any live cell with more than three live neighbours dies
+  if (liveBoard.grid[x][y] && liveNeighbors > 3) {
+    this.grid[x][y] = false;
+  }
+  // Rule 3 - Any live cell with two or three live neighbours lives, unchanged, to the next generation.
+  if (liveNeighbors === 2 || liveNeighbors === 3 ) {
+    this.grid[x][y] = liveBoard.grid[x][y]
+  }
+  // Rule 4 - Any dead cell with exactly three live neighbours will come to life.
+  if (liveBoard.grid[x][y] === false && liveNeighbors === 3) {
+    this.grid[x][y] = true;
+  }
+}
+
+Board.prototype.calculate = function(liveBoard) {
+  var resumeX, resumeY = 0;
+
   for (var y=0; y<this.size; y++) { 
     for (var x=0; x<this.size; x++) {
-      // Iterate through each cell and apply the 4 rules to it.
-      var livingNeighbors = 0;
-      for (var i=0; i<9; i++) {
+      var liveNeighbors;
 
-        // Scanning management - skip 4 and abort if array query is OOB
-        if (i === 4) { continue; } // i === 4 is it's own self.
-        xCoord = (x-1) + (i % 3);
-        yCoord = (y-1) + Math.floor(i/3);
-
-        // Instead of out of bounds errors, correct it by looping
-        if (xCoord < 0) { 
-          xCoord = this.size -1
-        } else if (xCoord > this.size -1) {
-          xCoord = 0;
-        }
-        if (yCoord < 0) { 
-          yCoord = this.size -1;
-        } else if (yCoord > this.size -1) {
-          yCoord = 0;
-        }
-
-        // Count the living neighbors
-        if (liveBoard.grid[ xCoord ][ yCoord ]) {
-          livingNeighbors += 1;
-        }
+      // Method for skipping as many cycles as possible
+      if (liveBoard.grid[x][y]) {
+        resumeX = x;
+        resumeY = y;
       }
 
-      // Rule 1 - Any live cell with fewer than two live neighbours dies
-      if (liveBoard.grid[x][y] && livingNeighbors < 2) {
-        this.grid[x][y] = false;
-      }
-      // Rule 2 - Any live cell with more than three live neighbours dies
-      if (liveBoard.grid[x][y] && livingNeighbors > 3) {
-        this.grid[x][y] = false;
-      }
-      // Rule 3 - Any live cell with two or three live neighbours lives, unchanged, to the next generation.
-      if (livingNeighbors === 2 || livingNeighbors === 3 ) {
-        this.grid[x][y] = liveBoard.grid[x][y]
-      }
-      // Rule 4 - Any dead cell with exactly three live neighbours will come to life.
-      if (liveBoard.grid[x][y] === false && livingNeighbors === 3) {
-        this.grid[x][y] = true;
-      }
+      liveNeighbors = this.countNeighbors(x,y,liveBoard);
+      this.applyRules(x, y, liveBoard, liveNeighbors)
+
+      
     }
   }
 }
 
 function nextGeneration(live, buffer) {
   buffer.initEmpty();
-  buffer.applyRules(live);
+  buffer.calculate(live);
   buffer.commit();
   live.grid = buffer.grid;
   generation += 1;
@@ -128,7 +147,7 @@ function setBrowserSize(live, buffer) {
 
 // On Doc Ready
 $(document).ready(function() {
-  var playing = null;
+   var playing = null;
 
   // Board initialization. Two boards: live & buffer. Buffer is the next generation
   live = new Board();
@@ -156,6 +175,7 @@ $(document).ready(function() {
     } else {
       $(this).addClass('y'); // Add class and add to grid
       live.grid[$(this).attr('id') % gridSize][Math.floor($(this).attr('id') / gridSize)] = true;
+      console.log($(this).attr('id') % gridSize,Math.floor($(this).attr('id') / gridSize));
     }  
   })
 
@@ -189,7 +209,6 @@ $(document).ready(function() {
         playing = null;
       }
     }
-
   })
 
   // Next Button
